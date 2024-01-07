@@ -3,7 +3,7 @@ import Playlist from '../Playlist/Playlist';
 import SearchBar from '../SearchBar/searchBar';
 import SearchResults from '../SearchResults/SearchResults';
 import styles from './App.module.css';
-
+import Spotify from '../../utils/Spotify'
 
 function App() {
 
@@ -55,12 +55,30 @@ function App() {
     setPlaylistTracks(newPlaylist)
   }
 
+  function renamePlaylist(name) {
+    setPlaylistName(name)
+  }
+
+  function savePlaylist() {
+    const trackURIs = playlistTracks.map((t) => t.uri);
+    Spotify.savePlaylist(playlistName, trackURIs).then(() => {
+      renamePlaylist("New Playlist")
+      setPlaylistTracks([]);
+    })
+    
+  }
+
+  function search(term) {
+    Spotify.getSearchResults(term).then((result) => setSearchResults(result));
+    
+  }
+
 
   return (
     <div>
       <h1>Ja<span className={styles.highlight}>mmm</span>ing</h1>
         <div className={styles.App}>
-          <SearchBar />
+          <SearchBar onSearch={search} />
           <div className={styles["App-playlist"]}>
           <SearchResults 
             userSearchResults={searchResults} 
@@ -70,6 +88,8 @@ function App() {
             playlistName={playlistName} 
             playlistTracks={playlistTracks} 
             onRemove={removeTrack}
+            onNameChange={renamePlaylist}
+            onSave={savePlaylist}
           />
           </div>
       </div>
